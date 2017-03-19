@@ -13,15 +13,25 @@ public class TestServer {
     public static final Gson gson = new Gson();
     public static void main(String[] args) throws Exception{
         String read;
-        Socket clientSocket = new Socket("192.168.31.103", 8989);
+        Socket clientSocket = new Socket("123.125.127.161", 8989);
+//        Socket clientSocket = new Socket("192.168.31.103", 8989);
         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         bw.write("INIT01\n");
         bw.flush();
+
+        boolean pushTest = false;
         while (true) {
             read = inFromServer.readLine();
             System.out.println("read : "+read);
             if (read == null) break;
+
+            if (read.contains("OK") && !pushTest) {
+                pushTest = true;
+                bw.write("PUSH02cylee\n");
+                bw.flush();
+            }
+
             if (read.startsWith("#") && read.length() > 3) {
                 String id = read.substring(1,3);
                 String data = read.substring(3);
