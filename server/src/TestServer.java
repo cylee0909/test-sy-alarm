@@ -12,9 +12,22 @@ import java.net.Socket;
 public class TestServer {
     public static final Gson gson = new Gson();
     public static void main(String[] args) throws Exception{
-        String read;
-        Socket clientSocket = new Socket("123.125.127.161", 8989);
-//        Socket clientSocket = new Socket("192.168.31.103", 8989);
+        String read = null;
+//        while (Boolean.TRUE) {
+//            Socket clientSocket2 = new Socket("123.125.127.186", 8989);
+////        Socket clientSocket2 = new Socket("192.168.0.105", 8989);
+//            BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket2.getInputStream()));
+//            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(clientSocket2.getOutputStream()));
+//            bw.write("INIT01\n");
+//            bw.flush();
+//
+//            read = inFromServer.readLine();
+//            System.out.println("read : "+read);
+//            Thread.sleep(1000);
+//        }
+
+        Socket clientSocket = new Socket("123.125.127.186", 8989);
+//        Socket clientSocket = new Socket("192.168.0.105", 8989);
         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         bw.write("INIT01\n");
@@ -26,11 +39,11 @@ public class TestServer {
             System.out.println("read : "+read);
             if (read == null) break;
 
-            if (read.contains("OK") && !pushTest) {
-                pushTest = true;
-                bw.write("PUSH02cylee\n");
-                bw.flush();
-            }
+//            if (read.contains("OK") && !pushTest) {
+//                pushTest = true;
+//                bw.write("PUSH02test_token\n");
+//                bw.flush();
+//            }
 
             if (read.startsWith("#") && read.length() > 3) {
                 String id = read.substring(1,3);
@@ -39,10 +52,10 @@ public class TestServer {
                 if (command != null) {
                     String cd = command.command;
                     System.out.println("exec command "+cd);
-                    System.out.println("exec params "+command.params);
+                    System.out.println("exec params "+command._params);
                     if (cd.equals("login")) {
                         Login login = new Login();
-                        login.token = "this is a test token";
+                        login.token = "test_token";
                         String result = "#"+id+gson.toJson(login)+"\n";
                         System.out.println(result);
                         bw.write(result);
@@ -139,6 +152,15 @@ public class TestServer {
                         bw.flush();
                     }
                 }
+            } else {
+                try {
+                    Thread.sleep(10000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                System.out.println("write ping");
+                bw.write("Ping\n");
+                bw.flush();
             }
         }
     }
@@ -150,7 +172,7 @@ public class TestServer {
     public static class Command {
         private static Gson gson = new Gson();
         public String command;
-        public String params;
+        public String _params;
         public static Command fromJson(String json) {
             return gson.fromJson(json, Command.class);
         }
